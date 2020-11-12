@@ -46,62 +46,78 @@ public class Test {
 
         int currentIndexOfLooser;
         int count = 0;
+        int lastPassengerSeat = 0;
+        int iteration = 1000;
 
 
-        List<Passenger> passengers = generatePassengers();
 
-        List<String> seats = IntStream.range(1, 1001)
-                .mapToObj(String::valueOf)
-                .collect(Collectors.toList());
+        while (iteration >= 0) {
+            List<Passenger> passengers = generatePassengers();
 
-        List<String> freeSeats = IntStream.range(1, 1001)
-                .mapToObj(String::valueOf)
-                .collect(Collectors.toList());
+            List<String> seats = IntStream.range(1, 1001)
+                    .mapToObj(String::valueOf)
+                    .collect(Collectors.toList());
 
-        int realSeatOfLooser = passengers.stream()
-                .filter(passenger -> passenger.getName().equals("Looser"))
-                .map(Passenger::getSeat)
-                .findFirst()
-                .orElse(-1);
+            List<String> freeSeats = IntStream.range(1, 1001)
+                    .mapToObj(String::valueOf)
+                    .collect(Collectors.toList());
 
-        String randomSeat = getRandomElement(freeSeats);
-
-        seats.set(seats.indexOf(randomSeat), "Looser");
-        passengers.removeIf(passenger -> passenger.getName().equals("Looser"));
-
-        boolean isFinished = false;
-
-        while (!isFinished) {
-
-            if (realSeatOfLooser == seats.indexOf("Looser")) {
-                System.out.println("Looser set on his own seat!");
-                System.out.println(count);
-                isFinished = true;
-            }
-            List<Integer> remainingSeat = passengers.stream().map(Passenger::getSeat).collect(Collectors.toList());
-            int passengerSeat = getRandomElement(remainingSeat);
-
-            Passenger passengerForRemove = passengers.stream()
-                    .filter(passenger -> passenger.getSeat() == passengerSeat)
+            int realSeatOfLooser = passengers.stream()
+                    .filter(passenger -> passenger.getName().equals("Looser"))
+                    .map(Passenger::getSeat)
                     .findFirst()
-                    .orElse(new Passenger(0, "Unknown"));
+                    .orElse(-1);
 
-            if (("Looser").equals(seats.get(passengerSeat - 1))) {
-                seats.set(seats.indexOf("Looser"), passengerForRemove.getName());
-                freeSeats.removeIf(s -> s.equals(String.valueOf(passengerSeat)));
-                passengers.remove(passengerForRemove);
-                currentIndexOfLooser = changeLooserSeat(seats, freeSeats);
-                count++;
-                if (currentIndexOfLooser == realSeatOfLooser) {
-                    System.out.println("Looser set on his own seat!");
-                    System.out.println(count);
+            String randomSeat = getRandomElement(freeSeats);
+
+            seats.set(seats.indexOf(randomSeat), "Looser");
+            passengers.removeIf(passenger -> passenger.getName().equals("Looser"));
+
+            boolean isFinished = false;
+
+            while (!isFinished) {
+
+                if (realSeatOfLooser == seats.indexOf("Looser")) {
+//                    System.out.println("Looser set on his own seat!");
+//                    System.out.println(count);
+                    if (freeSeats.size() >= 1) {
+                        lastPassengerSeat++;
+                    }
                     isFinished = true;
                 }
-            } else {
-                seats.set(seats.indexOf(String.valueOf(passengerSeat)), passengerForRemove.getName());
-                freeSeats.removeIf(s -> s.equals(String.valueOf(passengerSeat)));
-                passengers.remove(passengerForRemove);
+                List<Integer> remainingSeat = passengers.stream().map(Passenger::getSeat).collect(Collectors.toList());
+                int passengerSeat = getRandomElement(remainingSeat);
+
+                Passenger passengerForRemove = passengers.stream()
+                        .filter(passenger -> passenger.getSeat() == passengerSeat)
+                        .findFirst()
+                        .orElse(new Passenger(0, "Unknown"));
+
+                if (("Looser").equals(seats.get(passengerSeat - 1))) {
+                    seats.set(seats.indexOf("Looser"), passengerForRemove.getName());
+                    freeSeats.removeIf(s -> s.equals(String.valueOf(passengerSeat)));
+                    passengers.remove(passengerForRemove);
+                    currentIndexOfLooser = changeLooserSeat(seats, freeSeats);
+                    count++;
+                    if (currentIndexOfLooser == realSeatOfLooser) {
+//                        System.out.println("Looser set on his own seat!");
+//                        System.out.println(count);
+                        if (freeSeats.size() >= 2) {
+                            lastPassengerSeat++;
+                        }
+                        isFinished = true;
+                    }
+                } else {
+                    seats.set(seats.indexOf(String.valueOf(passengerSeat)), passengerForRemove.getName());
+                    freeSeats.removeIf(s -> s.equals(String.valueOf(passengerSeat)));
+                    passengers.remove(passengerForRemove);
+                }
             }
+
+            iteration--;
         }
+        int notLastPassengerSeat = 1000 - lastPassengerSeat;
+        System.out.println("lastPassengerSeat -> " + lastPassengerSeat);
+        System.out.println("notLastPassengerSeat -> " + notLastPassengerSeat);
     }
 }
